@@ -8,6 +8,7 @@ AbstractMover = "846a0f3d-20fc-416e-8846-8178ce77b5b3"
 PyCall = "438e738f-606a-5dbb-bf0a-cddfbfd45ab0"
 
 [compat]
+PyCall = "1"
 julia = "1.7"
 
 [extras]
