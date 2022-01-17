@@ -1,7 +1,7 @@
 module WMesa
 
 using PyCall
-using AbstractActuator
+using AbstractActuators
 
 export WMesaClient
 export move, position, setreference, rmove, numaxes
@@ -13,8 +13,8 @@ struct WMesaClient <: AbstractRobot
     server::PyObject
 end
 
-AbstractActuator.numaxes(dev::WMesaClient) = 1
-AbstractActuator.numaxes(::Type{WMesaClient}) = 1
+AbstractActuators.numaxes(dev::WMesaClient) = 1
+AbstractActuators.numaxes(::Type{WMesaClient}) = 1
 
 function WMesaClient(ip="192.168.0.140", port=9596)
     xmlrpc = pyimport("xmlrpc.client")
@@ -22,23 +22,23 @@ function WMesaClient(ip="192.168.0.140", port=9596)
     WMesaClient(ip, port, server)
 end
 
-AbstractActuator.move(dev::WMesaClient, deg; a=false, r=false, sync=true) =
+AbstractActuators.move(dev::WMesaClient, deg; a=false, r=false, sync=true) =
     dev.server["move"](deg, a, r, sync)
 
-AbstractActuator.rmove(dev::WMesaClient, deg; sync=true) =
+AbstractActuators.rmove(dev::WMesaClient, deg; sync=true) =
     dev.server["move"](deg, false, true, sync)
 
 
-AbstractActuator.position(dev::WMesaClient) = dev.server["position"]()
-AbstractActuator.absposition(dev::WMesaClient) = dev.server["abs_position"]()
+AbstractActuators.position(dev::WMesaClient) = dev.server["position"]()
+AbstractActuators.absposition(dev::WMesaClient) = dev.server["abs_position"]()
 
-AbstractActuator.setreference(dev::WMesaClient, deg=0) = dev.server["set_reference"](deg)
+AbstractActuators.setreference(dev::WMesaClient, deg=0) = dev.server["set_reference"](deg)
 
-AbstractActuator.setabsreference(dev::WMesaClient) = dev.server["set_abs_reference"]()
+AbstractActuators.setabsreference(dev::WMesaClient) = dev.server["set_abs_reference"]()
 
-AbstractActuator.waituntildone(dev::WMesaClient) = dev.server["waitUntilDone"]()
+AbstractActuators.waituntildone(dev::WMesaClient) = dev.server["waitUntilDone"]()
 
-AbstractActuator.stopmotion(dev::WMesaClient) = dev.server["stop"]()
+AbstractActuators.stopmotion(dev::WMesaClient) = dev.server["stop"]()
 
 
 end
