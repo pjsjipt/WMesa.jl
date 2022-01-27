@@ -3,7 +3,7 @@ module WMesa
 using PyCall
 using AbstractActuators
 
-export WMesaClient
+export WMesaClient, WMesaTest
 export move, position, setreference, rmove, numaxes
 export waituntildone, stopmotion, absposition, setabsreference
 
@@ -41,4 +41,40 @@ AbstractActuators.waituntildone(dev::WMesaClient) = dev.server["waitUntilDone"](
 AbstractActuators.stopmotion(dev::WMesaClient) = dev.server["stop"]()
 
 
+mutable struct WMesaTest <: AbstractRobot
+    θ::Float64
+    θᵣ::Float64
+    Δt::Float64
 end
+
+WMesaTest(;dt=1.0) = WMesaTest(0.0, 0.0, dt)
+
+function AbstractActuators.move(dev::WMesaTest, deg; a=false, r=false, sync=true)
+    if r
+        dev.θ += deg
+    elseif a
+        dev.θ = deg
+    else
+        dev.θ = deg + dev.θᵣ
+    end
+
+    sync && sleep(dev.Δt)
+
+    p = dev.θ - dev.θᵣ
+    println("Movement: θ = $p")
+end
+
+AbstractActuators.rmove(dev::WMesaTest, deg; sync=true) = move(dev, deg, r=true, sync=sync)
+AbstractActuators.position(dev::WMesaTest) = dev.θ - dev.θᵣ
+AbstractActuators.absposition(dev::WMesaTest) = dev.θ
+
+AbstractActuators.setreference(dev::WMesaTest, deg=0) = (dev.θᵣ = dev.θ - deg)
+AbstractActuators.setabsreference(dev::WMesaTest) = (dev.θᵣ = 0)
+
+
+AbstractActuators.waituntildone(dev::WMesaTest) = sleep(dev.Δt)
+AbstractActuators.stopmotion(dev::WMesaTest) = sleep(dev.Δt/5)
+
+end
+
+
