@@ -25,6 +25,9 @@ end
 AbstractActuators.move(dev::WMesaClient, deg; a=false, r=false, sync=true) =
     dev.server["move"](deg, a, r, sync)
 
+AbstractActuators.moveto(dev::WMesaClient, deg) =
+    move(dev, deg[1]; a=false, r=false, sync=true)
+
 AbstractActuators.rmove(dev::WMesaClient, deg; sync=true) =
     dev.server["move"](deg, false, true, sync)
 
