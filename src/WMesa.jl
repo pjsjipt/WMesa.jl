@@ -4,7 +4,7 @@ using PyCall
 using AbstractActuators
 
 export WMesaClient
-export move, position, setreference, rmove, numaxes
+export move, devposition, setreference, rmove, numaxes
 export waituntildone, stopmotion, absposition, setabsreference
 
 struct WMesaClient <: AbstractRobot
@@ -32,7 +32,7 @@ AbstractActuators.rmove(dev::WMesaClient, deg; sync=true) =
     dev.server["move"](deg, false, true, sync)
 
 
-AbstractActuators.position(dev::WMesaClient) = dev.server["position"]()
+AbstractActuators.devposition(dev::WMesaClient) = dev.server["position"]()
 AbstractActuators.absposition(dev::WMesaClient) = dev.server["abs_position"]()
 
 AbstractActuators.setreference(dev::WMesaClient, deg=0) = dev.server["set_reference"](deg)
