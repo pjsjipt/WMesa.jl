@@ -4,22 +4,24 @@ using PyCall
 using AbstractActuators
 
 export WMesaClient
-export move, devposition, setreference, rmove, numaxes
+export move, devposition, setreference, rmove, numaxes, axesnames
 export waituntildone, stopmotion, absposition, setabsreference
 
 struct WMesaClient <: AbstractRobot
     ip::String
     port::Int32
+    axis::String
     server::PyObject
 end
 
 AbstractActuators.numaxes(dev::WMesaClient) = 1
 AbstractActuators.numaxes(::Type{WMesaClient}) = 1
+AbstractActuators.axesnames(dev::WMesaClient) = [axis]
 
-function WMesaClient(ip="192.168.0.140", port=9596)
+function WMesaClient(ip="192.168.0.140", port=9596; axis="θ")
     xmlrpc = pyimport("xmlrpc.client")
     server = xmlrpc.ServerProxy("http://$ip:$port")
-    WMesaClient(ip, port, server)
+    WMesaClient(ip, port, axis, server)
 end
 
 AbstractActuators.move(dev::WMesaClient, deg; a=false, r=false, sync=true) =
