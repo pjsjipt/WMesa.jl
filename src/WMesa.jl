@@ -5,7 +5,7 @@ using AbstractActuators
 
 export WMesaClient
 export move, devposition, setreference, rmove, numaxes, axesnames
-export waituntildone, stopmotion, absposition, setabsreference
+export waituntildone, stopmotion, absposition, setabsreference, moveto
 
 struct WMesaClient <: AbstractRobot
     devname::String
@@ -17,7 +17,7 @@ end
 
 AbstractActuators.numaxes(dev::WMesaClient) = 1
 AbstractActuators.numaxes(::Type{WMesaClient}) = 1
-AbstractActuators.axesnames(dev::WMesaClient) = [axis]
+AbstractActuators.axesnames(dev::WMesaClient) = [dev.axis]
 
 function WMesaClient(devname, ip="192.168.0.140", port=9596; axis="θ")
     xmlrpc = pyimport("xmlrpc.client")
