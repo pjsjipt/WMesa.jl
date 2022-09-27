@@ -1,13 +1,14 @@
 module WMesa
 
 using PyCall
-using AbstractActuators
+using DAQCore
 
 export WMesaClient
 export move, devposition, setreference, rmove, numaxes, axesnames
-export waituntildone, stopmotion, absposition, setabsreference, moveto
+export waituntildone, stopmotion, absposition, setabsreference, moveto!
+export stopoutputdev
 
-struct WMesaClient <: AbstractRobot
+struct WMesaClient <: AbstractOutputDev
     devname::String
     ip::String
     port::Int32
@@ -15,9 +16,9 @@ struct WMesaClient <: AbstractRobot
     server::PyObject
 end
 
-AbstractActuators.numaxes(dev::WMesaClient) = 1
-AbstractActuators.numaxes(::Type{WMesaClient}) = 1
-AbstractActuators.axesnames(dev::WMesaClient) = [dev.axis]
+DAQCore.numaxes(dev::WMesaClient) = 1
+DAQCore.numaxes(::Type{WMesaClient}) = 1
+DAQCore.axesnames(dev::WMesaClient) = [dev.axis]
 
 function WMesaClient(devname, ip="192.168.0.140", port=9596; axis="θ")
     xmlrpc = pyimport("xmlrpc.client")
@@ -25,27 +26,29 @@ function WMesaClient(devname, ip="192.168.0.140", port=9596; axis="θ")
     WMesaClient(devname, ip, port, axis, server)
 end
 
-AbstractActuators.move(dev::WMesaClient, deg; a=false, r=false, sync=true) =
+move(dev::WMesaClient, deg; a=false, r=false, sync=true) =
     dev.server["move"](deg, a, r, sync)
 
-AbstractActuators.moveto(dev::WMesaClient, deg) =
+DAQCore.moveto!(dev::WMesaClient, deg) =
     move(dev, deg[1]; a=false, r=false, sync=true)
 
-AbstractActuators.rmove(dev::WMesaClient, deg; sync=true) =
+rmove(dev::WMesaClient, deg; sync=true) =
     dev.server["move"](deg, false, true, sync)
 
 
-AbstractActuators.devposition(dev::WMesaClient) = dev.server["position"]()
-AbstractActuators.absposition(dev::WMesaClient) = dev.server["abs_position"]()
+DAQCore.devposition(dev::WMesaClient) = dev.server["position"]()
+absposition(dev::WMesaClient) = dev.server["abs_position"]()
 
-AbstractActuators.setreference(dev::WMesaClient, deg=0) = dev.server["set_reference"](deg)
+setreference(dev::WMesaClient, deg=0) = dev.server["set_reference"](deg)
 
-AbstractActuators.setabsreference(dev::WMesaClient) = dev.server["set_abs_reference"]()
+setabsreference(dev::WMesaClient) = dev.server["set_abs_reference"]()
 
-AbstractActuators.waituntildone(dev::WMesaClient) = dev.server["waitUntilDone"]()
+DAQCore.waituntildone(dev::WMesaClient) = dev.server["waitUntilDone"]()
 
-AbstractActuators.stopmotion(dev::WMesaClient) = dev.server["stop"]()
+stopmotion(dev::WMesaClient) = dev.server["stop"]()
+DAQCore.stopoutputdev(dev::WMesaClient) = dev.server["stop"]()
 
+                      
 
 
 end
